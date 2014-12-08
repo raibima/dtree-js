@@ -20,7 +20,7 @@ var DecisionTree = function(examples, attributes, target) {
   var bestAttribute = utils.chooseAttribute(examples, attributes, target);
   this.name = bestAttribute;
   this.type = 'attribute';
-  var uniqueAttributeValues = _.uniq(_.pluck(examples, this.name));
+  var uniqueAttributeValues = _.uniq(_.pluck(examples, bestAttribute));
   this.branches = uniqueAttributeValues.map(function(v) {
     var exs = examples.filter(function(e) {
       return e[bestAttribute] === v;
@@ -38,10 +38,18 @@ DecisionTree.prototype.predict = function(data) {
   while (node.type !== 'result') {
     var attr = node.name;
     var givenValue = data[attr];
-    var branch = _.detect(node.branches, function(x) {
-      return x.name === givenValue;
+    // console.log("%s: %s", attr, givenValue);
+    // console.log(node.branches);
+    var selectedBranch = _.detect(node.branches, function(x) {
+      // console.log(x.name.toString() == givenValue);
+      return x.name.toString() == givenValue;
     });
-    node = branch.node;
+    // console.log();
+    // console.log(selectedBranch);
+    if (!selectedBranch) {
+      selectedBranch = node.branches[Math.floor(Math.random()*node.branches.length)];
+    }
+    node = selectedBranch.node;
   }
   return node.name;
 }
